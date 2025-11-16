@@ -6,12 +6,14 @@ const Auth: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
-    const [name, setName] = useState('');
+    const [fullName, setFullName] = useState('');
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [error, setError] = useState<string | React.ReactNode>('');
     const [info, setInfo] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showRepeatPassword, setShowRepeatPassword] = useState(false);
     const { currentUser, signIn, signUp, logOut, resendVerificationEmail, resetPassword } = useAuth();
 
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,15 +159,20 @@ const Auth: React.FC = () => {
                                 <p className="text-sm text-slate-600 text-center">أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.</p>
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-medium text-slate-700 text-right">البريد الإلكتروني</label>
-                                    <input
-                                        id="email"
-                                        type="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                        className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
-                                            focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-left dir-ltr"
-                                    />
+                                    <div className="relative mt-1">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <i className="fas fa-envelope text-slate-400"></i>
+                                        </div>
+                                        <input
+                                            id="email"
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                            className="block w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+                                                focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-slate-900 text-left dir-ltr"
+                                        />
+                                    </div>
                                 </div>
                                 <button
                                     type="submit"
@@ -212,30 +219,40 @@ const Auth: React.FC = () => {
                                  <span className="text-sm text-slate-500 mt-2">تحميل صورة الملف الشخصي</span>
                             </div>
                              <div>
-                                <label htmlFor="name" className="block text-sm font-medium text-slate-700 text-right">الاسم</label>
-                                <input
-                                    id="name"
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required={authMode === 'signup'}
-                                    className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
-                                        focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-right dir-rtl"
-                                />
+                                <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 text-right">الاسم الكامل</label>
+                                <div className="relative mt-1">
+                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i className="fas fa-user text-slate-400"></i>
+                                    </div>
+                                    <input
+                                        id="fullName"
+                                        type="text"
+                                        value={fullName}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        required={authMode === 'signup'}
+                                        className="block w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+                                            focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-slate-900 text-left dir-ltr"
+                                    />
+                                </div>
                             </div>
                         </>
                     )}
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-slate-700 text-right">البريد الإلكتروني</label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
-                                focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-left dir-ltr"
-                        />
+                        <div className="relative mt-1">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i className="fas fa-envelope text-slate-400"></i>
+                            </div>
+                            <input
+                                id="email"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="block w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+                                    focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-slate-900 text-left dir-ltr"
+                            />
+                        </div>
                     </div>
                     <div>
                         <div className="flex justify-between items-center">
@@ -250,28 +267,48 @@ const Auth: React.FC = () => {
                                 </button>
                             )}
                         </div>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
-                                focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-left dir-ltr"
-                        />
+                         <div className="relative mt-1">
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 left-0 px-3 flex items-center text-slate-500 hover:text-slate-700 focus:outline-none z-10"
+                                aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                            >
+                                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                            </button>
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                className="block w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+                                    focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-slate-900 text-left dir-ltr"
+                            />
+                        </div>
                     </div>
                      {authMode === 'signup' && (
                         <div>
                             <label htmlFor="repeat-password" className="block text-sm font-medium text-slate-700 text-right">تأكيد كلمة المرور</label>
-                            <input
-                                id="repeat-password"
-                                type="password"
-                                value={repeatPassword}
-                                onChange={(e) => setRepeatPassword(e.target.value)}
-                                required={authMode === 'signup'}
-                                className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
-                                    focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-left dir-ltr"
-                            />
+                            <div className="relative mt-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                                    className="absolute inset-y-0 left-0 px-3 flex items-center text-slate-500 hover:text-slate-700 focus:outline-none z-10"
+                                    aria-label={showRepeatPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                                >
+                                    <i className={`fas ${showRepeatPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                </button>
+                                <input
+                                    id="repeat-password"
+                                    type={showRepeatPassword ? "text" : "password"}
+                                    value={repeatPassword}
+                                    onChange={(e) => setRepeatPassword(e.target.value)}
+                                    required={authMode === 'signup'}
+                                    className="block w-full pl-10 pr-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
+                                        focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-slate-900 text-left dir-ltr"
+                                />
+                            </div>
                         </div>
                     )}
                     <button
