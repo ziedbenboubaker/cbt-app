@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Auth: React.FC = () => {
@@ -14,7 +14,35 @@ const Auth: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
     const { currentUser, signIn, signUp, logOut, resendVerificationEmail, resetPassword } = useAuth();
+
+    useEffect(() => {
+        if (currentUser) {
+            setError('');
+            setInfo('');
+        }
+    }, [currentUser]);
+    
+    useEffect(() => {
+        setError('');
+        setInfo('');
+    }, [authMode]);
+
+    useEffect(() => {
+        let timer: number | undefined;
+        if (resendCooldown > 0) {
+            timer = window.setTimeout(() => {
+                setResendCooldown(prev => prev - 1);
+            }, 1000);
+        }
+        return () => {
+            if (timer) {
+                window.clearTimeout(timer);
+            }
+        };
+    }, [resendCooldown]);
+
 
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -66,14 +94,20 @@ const Auth: React.FC = () => {
     };
 
     const handleResend = async () => {
+        if (loading || resendCooldown > 0) return;
         setError('');
         setInfo('');
         setLoading(true);
         try {
             await resendVerificationEmail();
             setInfo(`تم إرسال بريد إلكتروني جديد للتحقق إلى ${currentUser?.email}.`);
-        } catch (error) {
-            setError("فشل في إعادة إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا.");
+            setResendCooldown(60);
+        } catch (err: any) {
+            if (err.code === 'auth/too-many-requests') {
+                setError("لقد أرسلنا الكثير من رسائل التحقق إلى هذا البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا.");
+            } else {
+                setError("فشل في إعادة إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقًا.");
+            }
         } finally {
             setLoading(false);
         }
@@ -90,7 +124,10 @@ const Auth: React.FC = () => {
         } catch (err: any) {
              if (err.code === 'auth/user-not-found') {
                  setError('لا يوجد مستخدم بهذا البريد الإلكتروني.');
-            } else {
+            } else if (err.code === 'auth/too-many-requests') {
+                setError("لقد طلبنا إعادة تعيين كلمة المرور مرات عديدة جدًا. يرجى المحاولة مرة أخرى لاحقًا.");
+            }
+            else {
                 setError('فشل في إرسال رابط إعادة التعيين. يرجى المحاولة مرة أخرى.');
             }
         } finally {
@@ -118,10 +155,16 @@ const Auth: React.FC = () => {
                     <div className="space-y-4">
                         <button
                             onClick={handleResend}
-                            disabled={loading}
+                            disabled={loading || resendCooldown > 0}
                             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 disabled:bg-slate-400 transition-colors"
                         >
-                            {loading ? <i className="fas fa-spinner fa-spin"></i> : 'إعادة إرسال البريد الإلكتروني'}
+                            {loading ? (
+                                <i className="fas fa-spinner fa-spin"></i>
+                             ) : resendCooldown > 0 ? (
+                                `إعادة الإرسال بعد (${resendCooldown})`
+                             ) : (
+                                'إعادة إرسال البريد الإلكتروني'
+                             )}
                         </button>
                         <button
                             onClick={async () => await logOut()}

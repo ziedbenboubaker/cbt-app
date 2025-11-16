@@ -9,7 +9,9 @@ import {
     signOut,
     sendEmailVerification,
     sendPasswordResetEmail,
-    Auth
+    applyActionCode,
+    Auth,
+    ActionCodeSettings
 } from 'firebase/auth';
 import { firebaseConfig } from '../firebaseConfig';
 
@@ -21,6 +23,7 @@ interface AuthContextType {
     logOut: () => Promise<void>;
     resendVerificationEmail: () => Promise<void>;
     resetPassword: (email: string) => Promise<void>;
+    verifyEmail: (actionCode: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,13 +43,27 @@ interface AuthProviderProps {
 const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth: Auth = getAuth(app);
 
+// Action code settings to redirect user back to the app
+const actionCodeSettings: ActionCodeSettings = {
+    url: `https://${firebaseConfig.authDomain}`,
+    handleCodeInApp: true,
+};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
     const signUp = async (email: string, password: string) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await sendEmailVerification(userCredential.user);
+        try {
+            await sendEmailVerification(userCredential.user, actionCodeSettings);
+        } catch (error) {
+            console.error("Failed to send verification email on signup:", error);
+            // We do not re-throw the error.
+            // This ensures that if the user is created but the email fails to send,
+            // they are still logged in and taken to the 'verify email' screen,
+            // where they can use the 'resend' button.
+        }
     };
 
     const signIn = (email: string, password: string) => {
@@ -59,14 +76,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const resendVerificationEmail = async () => {
         if (auth.currentUser) {
-            await sendEmailVerification(auth.currentUser);
+            await sendEmailVerification(auth.currentUser, actionCodeSettings);
         } else {
             throw new Error("No user is currently signed in to resend verification email.");
         }
     };
     
     const resetPassword = (email: string) => {
-        return sendPasswordResetEmail(auth, email);
+        return sendPasswordResetEmail(auth, email, actionCodeSettings);
+    };
+
+    const verifyEmail = (actionCode: string) => {
+        return applyActionCode(auth, actionCode);
     };
 
     useEffect(() => {
@@ -86,6 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logOut,
         resendVerificationEmail,
         resetPassword,
+        verifyEmail,
     };
 
     return (
