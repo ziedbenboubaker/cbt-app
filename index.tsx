@@ -16,7 +16,7 @@ const AppContainer: React.FC = () => {
         );
     }
     
-    return currentUser ? <App /> : <Auth />;
+    return currentUser && currentUser.emailVerified ? <App /> : <Auth />;
 };
 
 const rootElement = document.getElementById('root');

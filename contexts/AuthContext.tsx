@@ -7,6 +7,8 @@ import {
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
     signOut,
+    sendEmailVerification,
+    sendPasswordResetEmail,
     Auth
 } from 'firebase/auth';
 import { firebaseConfig } from '../firebaseConfig';
@@ -17,6 +19,8 @@ interface AuthContextType {
     signUp: (email: string, password: string) => Promise<void>;
     signIn: (email: string, password: string) => Promise<void>;
     logOut: () => Promise<void>;
+    resendVerificationEmail: () => Promise<void>;
+    resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,8 +44,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const signUp = (email: string, password: string) => {
-        return createUserWithEmailAndPassword(auth, email, password).then(() => {});
+    const signUp = async (email: string, password: string) => {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(userCredential.user);
     };
 
     const signIn = (email: string, password: string) => {
@@ -50,6 +55,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const logOut = () => {
         return signOut(auth);
+    };
+
+    const resendVerificationEmail = async () => {
+        if (auth.currentUser) {
+            await sendEmailVerification(auth.currentUser);
+        } else {
+            throw new Error("No user is currently signed in to resend verification email.");
+        }
+    };
+    
+    const resetPassword = (email: string) => {
+        return sendPasswordResetEmail(auth, email);
     };
 
     useEffect(() => {
@@ -67,6 +84,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         signUp,
         signIn,
         logOut,
+        resendVerificationEmail,
+        resetPassword,
     };
 
     return (
