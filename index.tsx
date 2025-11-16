@@ -2,6 +2,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import Auth from './components/Auth';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+const AppContainer: React.FC = () => {
+    const { currentUser, loading } = useAuth();
+
+    if (loading) {
+        return (
+            <div className="h-screen flex items-center justify-center">
+                <i className="fas fa-spinner fa-spin text-teal-600 text-4xl"></i>
+            </div>
+        );
+    }
+    
+    return currentUser ? <App /> : <Auth />;
+};
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -11,6 +27,8 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+        <AppContainer />
+    </AuthProvider>
   </React.StrictMode>
 );

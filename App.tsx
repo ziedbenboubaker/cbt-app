@@ -5,12 +5,14 @@ import { createCbtChat } from './services/geminiService';
 import type { Chat } from '@google/genai';
 import ChatMessage from './components/ChatMessage';
 import ChatInput from './components/ChatInput';
+import { useAuth } from './contexts/AuthContext';
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatSession, setChatSession] = useState<Chat | null>(null);
   const [isThinking, setIsThinking] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const { currentUser, logOut } = useAuth();
 
   useEffect(() => {
     // Scroll to the bottom whenever messages change
@@ -87,22 +89,40 @@ const App: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleSignOut = async () => {
+    try {
+        await logOut();
+    } catch (error) {
+        console.error("Failed to sign out", error);
+    }
+  };
+
   return (
     <div className="h-screen flex items-center justify-center p-4">
         <div className="flex flex-col h-full max-h-[90vh] w-full max-w-4xl bg-white/80 backdrop-blur-lg shadow-2xl rounded-2xl overflow-hidden ring-1 ring-black ring-opacity-5">
             <header className="relative p-6 bg-teal-700/90 text-white flex items-center justify-between shadow-md">
                 <div className="text-start">
                     <h1 className="text-2xl font-bold">مساعدي العلاجي الشخصي</h1>
-                    <p className="text-sm text-teal-100">تطبيق مبادئ العلاج المعرفي السلوكي (CBT)</p>
+                    <p className="text-sm text-teal-100">{currentUser?.email}</p>
                 </div>
-                <button
-                    onClick={handleExportConversation}
-                    title="تنزيل المحادثة"
-                    aria-label="تنزيل سجل المحادثة بالكامل"
-                    className="w-12 h-12 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-700 focus:ring-white"
-                >
-                    <i className="fas fa-file-export"></i>
-                </button>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleExportConversation}
+                        title="تنزيل المحادثة"
+                        aria-label="تنزيل سجل المحادثة بالكامل"
+                        className="w-12 h-12 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-700 focus:ring-white"
+                    >
+                        <i className="fas fa-file-export"></i>
+                    </button>
+                     <button
+                        onClick={handleSignOut}
+                        title="تسجيل الخروج"
+                        aria-label="تسجيل الخروج"
+                        className="w-12 h-12 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-teal-700 focus:ring-white"
+                    >
+                        <i className="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
             </header>
             <main ref={chatContainerRef} className="flex-1 overflow-y-auto p-8 space-y-8">
                 {messages.map((msg) => (

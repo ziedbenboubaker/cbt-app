@@ -1,22 +1,23 @@
+
 {
-  "name": "copy-of-my-cbt-therapist",
+  "name": "my-cbt-therapist",
+  "version": "1.0.0",
+  "description": "An AI-powered chatbot to help you apply Cognitive Behavioral Therapy (CBT) principles and challenge negative thought patterns, following a structured therapeutic path.",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "start": "echo \"Error: no start script specified. This project runs directly in a browser environment that supports TSX modules and import maps.\" && exit 1",
+    "build": "echo \"Error: no build script specified. This project runs directly in a browser environment that supports TSX modules and import maps.\" && exit 1"
   },
   "dependencies": {
+    "@google/genai": "^1.29.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "@google/genai": "^1.29.1"
+    "firebase": "^10.12.2"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.3"
   }
 }
