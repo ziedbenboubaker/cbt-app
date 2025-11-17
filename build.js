@@ -20,6 +20,16 @@ const esbuildOptions = {
     define: {
         'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
     },
+    // Mark packages loaded via importmap as external
+    external: [
+        'react',
+        'react-dom/*',
+        'react/*',
+        '@google/genai',
+        'firebase/app',
+        'firebase/auth',
+        'firebase/*'
+    ],
     logLevel: 'info',
 };
 
