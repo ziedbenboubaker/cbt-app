@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "start": "echo \"This project runs directly in a browser. Open index.html in a live server.\" && exit 0",
-    "build": "echo \"No build step required for this project.\" && exit 0",
-    "deploy": "firebase deploy --only hosting"
+    "build": "node build.js",
+    "deploy": "npm run build && firebase deploy --only hosting"
   },
   "dependencies": {
     "@google/genai": "^1.29.1",
@@ -19,6 +19,7 @@
     "@types/react-dom": "^18.3.0",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.3",
-    "firebase-tools": "^13.11.2"
+    "firebase-tools": "^13.11.2",
+    "esbuild": "^0.21.4"
   }
 }
