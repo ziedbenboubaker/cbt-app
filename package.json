@@ -4,7 +4,7 @@
   "description": "An AI-powered chatbot to help you apply Cognitive Behavioral Therapy (CBT) principles and challenge negative thought patterns, following a structured therapeutic path.",
   "private": true,
   "scripts": {
-    "start": "echo \"This project runs directly in a browser. Open index.html in a live server.\" && exit 0",
+    "dev": "node build.js --dev",
     "build": "node build.js",
     "deploy": "npm run build && firebase deploy --only hosting"
   },
@@ -20,6 +20,7 @@
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.3",
     "firebase-tools": "^13.11.2",
-    "esbuild": "^0.21.4"
+    "esbuild": "^0.21.4",
+    "dotenv": "^16.4.5"
   }
 }
