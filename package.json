@@ -1,12 +1,12 @@
-
 {
   "name": "my-cbt-therapist",
   "version": "1.0.0",
   "description": "An AI-powered chatbot to help you apply Cognitive Behavioral Therapy (CBT) principles and challenge negative thought patterns, following a structured therapeutic path.",
   "private": true,
   "scripts": {
-    "start": "echo \"Error: no start script specified. This project runs directly in a browser environment that supports TSX modules and import maps.\" && exit 1",
-    "build": "echo \"Error: no build script specified. This project runs directly in a browser environment that supports TSX modules and import maps.\" && exit 1"
+    "start": "echo \"This project runs directly in a browser. Open index.html in a live server.\" && exit 0",
+    "build": "echo \"No build step required for this project.\" && exit 0",
+    "deploy": "firebase deploy --only hosting"
   },
   "dependencies": {
     "@google/genai": "^1.29.1",
@@ -18,6 +18,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "tailwindcss": "^3.4.4",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "firebase-tools": "^13.11.2"
   }
 }
