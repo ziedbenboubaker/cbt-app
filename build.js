@@ -8,16 +8,35 @@ if (fs.existsSync('.env.local')) {
     require('dotenv').config({ path: '.env.local' });
 }
 
+const distDir = 'dist';
+const outfilePath = path.join(distDir, 'index.js');
+
 // Common esbuild configuration for both dev and prod
 const esbuildOptions = {
     entryPoints: ['index.tsx'],
     bundle: true,
+    outfile: outfilePath, // Explicitly set the output path
     jsx: 'automatic',
     define: {
         'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
     },
     logLevel: 'info',
 };
+
+/**
+ * Prepares the dist directory by creating it if it doesn't exist,
+ * and copying/modifying the index.html file.
+ */
+function prepareDistDirectory() {
+    if (!fs.existsSync(distDir)) {
+        fs.mkdirSync(distDir);
+    }
+    // Copy index.html to dist and update script path
+    let html = fs.readFileSync('index.html', 'utf-8');
+    // Change the script from .tsx to the output .js file
+    html = html.replace('/index.tsx', '/index.js'); 
+    fs.writeFileSync(path.join(distDir, 'index.html'), html);
+}
 
 
 /**
@@ -26,6 +45,9 @@ const esbuildOptions = {
  */
 async function main() {
     const isDev = process.argv.includes('--dev');
+
+    // Prepare the 'dist' directory for both modes
+    prepareDistDirectory();
 
     if (isDev) {
         // --- DEVELOPMENT MODE ---
@@ -42,12 +64,15 @@ async function main() {
             `);
         }
 
-        const ctx = await context(esbuildOptions);
+        const ctx = await context({
+            ...esbuildOptions,
+            sourcemap: true, // Enable sourcemaps for better debugging
+        });
         
         await ctx.watch();
 
         const { port } = await ctx.serve({
-            servedir: '.', // Serves files from the root, including index.html
+            servedir: distDir, // Serve from the 'dist' directory
             port: 3000,
         });
 
@@ -58,21 +83,10 @@ async function main() {
         // Creates optimized files in the 'dist' directory for deployment
         console.log('Starting production build...');
         
-        const distDir = 'dist';
-        if (!fs.existsSync(distDir)) {
-            fs.mkdirSync(distDir);
-        }
-
         await build({
             ...esbuildOptions,
-            outfile: path.join(distDir, 'index.js'),
             minify: true, // Minify code for production
         });
-
-        // Copy index.html to dist and update script path
-        let html = fs.readFileSync('index.html', 'utf-8');
-        html = html.replace('/index.tsx', '/index.js');
-        fs.writeFileSync(path.join(distDir, 'index.html'), html);
 
         console.log('✅ Production build successful! Files are ready in the dist/ directory.');
     }
